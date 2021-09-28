@@ -1,0 +1,24 @@
+---
+title: "logi"
+author: "John Esteban Londoño Sanchez"
+date: "4/5/2021"
+output: pdf_document
+---
+
+```{r}
+
+library(readxl)
+data <-read_excel("C:/Users/user/Downloads/Table 15.7.xlsx")
+
+data$y <- ifelse(data$LETTER=='A',1,0)
+data$GPA<- as.numeric(data$GPA)
+
+mod <- glm(y~GPA+TUCE+PSI,data=data,family = 'binomial')
+
+summary(mod)
+```
+
+```{r}
+str(data)
+```
+

@@ -1,0 +1,80 @@
+---
+title: '2020'
+author: "John Esteban Londoño Sanchez"
+date: "17/6/2021"
+output: pdf_document
+---
+
+# Entorno
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(knitr)
+library(openxlsx)
+library("gridExtra")
+library(cowplot)
+library(forcats)
+library("rgdal")
+library("rgeos")
+library("tmap")
+library(sp)
+library(gstat)
+library(spdep)
+library(gt)
+library(webshot)
+library(gridExtra)
+library(arules)
+library(reshape2)
+```
+
+```{r}
+data <- read_excel("C:/Users/user/OneDrive - Universidad de Antioquia/Udea/Convocatoria Tematica/2020.xlsx")
+```
+
+# Limpieza
+## Totales
+
+```{r}
+costo<-data %>%
+  group_by(comuna) %>%
+  summarise(total=sum(Costo))
+
+votos<-data %>%
+  group_by(comuna)  %>%
+  summarise(votos=sum(`Total Votos`))
+
+total<-merge(costo,votos,by='comuna')
+```
+
+## Dependencia
+
+```{r}
+
+depend<-data %>%
+  group_by(comuna,Tema) %>%
+  summarise(costo=sum(Costo)) %>%
+  pivot_wider(names_from = Tema,values_from = costo)
+
+
+voto<-data %>%
+  group_by(comuna,Tema) %>%
+  summarise(voto=sum(`Total Votos`)) %>%
+  pivot_wider(names_from = Tema,values_from = voto)
+
+
+depende<-merge(depend,voto,by='comuna')
+```
+
+
+# Total
+
+```{r}
+final<-merge(total,depende,by='comuna')
+
+final <-final %>%
+  replace(is.na(.),0)
+
+write.xlsx(final,'2020.xlsx')
+```
+

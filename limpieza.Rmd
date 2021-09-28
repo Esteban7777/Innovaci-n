@@ -1,0 +1,787 @@
+---
+title: "Limpieza"
+author: "John Esteban Londoño Sanchez"
+date: "3/5/2021"
+output: pdf_document
+---
+# Entorno
+```{r}
+library(tidyverse)
+library(readxl)
+library(pander)
+library(knitr)
+library(ggcorrplot)
+library(openxlsx)
+library("gridExtra")
+library(cowplot)
+
+library(forcats)
+```
+
+```{r}
+data <- read_excel("C:/Users/user/Downloads/DATA (1).xlsx")
+
+```
+
+```{r}
+data<- read_excel("C:/Users/user/Downloads/inversion_por_comuna_y_corregimiento_medellin_2019.xlsx")
+
+cod <- read_excel("C:/Users/user/Downloads/inversion_por_comuna_y_corregimiento_medellin_2019.xlsx",sheet = 2)
+
+
+```
+
+
+
+
+
+
+
+# Año 2019
+## Limpieza Votaciones
+
+```{r}
+ data<- data %>%
+  mutate(Comunicaciones_D= Comunicaciones+COMUNICACIONES+Comunicación) %>%
+  mutate(Convivencia_D =`Convivencia y Derechos humanos`+`Seguridad y convivencia`+Convivencia+`Derechos humanos, convivencia y seguridad.`+`Convivencia y Derechos Humanos` + `Convivencia ciudadana.`+Convivencia.+`Convivencia ciudadana.`+Convivencia.+`Derechos humanos.`)%>%
+  mutate(Cultura_D=Cultura+`Cultura ciudadana`+`Cultura.`+`Arte y cultura.`+`Arte y cultura`+`Cultura Ambiental y Sostenibilidad`+`Cultura, arte y patrimonio.`)  %>%
+ mutate(Deporte_D= `Deportes y Recreación`+`Recreación y deportes`+`Deporte, recreación y actividad física`+`Deporte y recreación`+`Deporte y recreación.`+`Recreación y deporte`+`Deporte, recreación y actividad física.`+`Recreación y deporte.`+`Recreación y deporte.`+`Deporte,recreación y jóvenes`)  %>%
+  mutate(Desarrollo_D= `Desarrollo económico`+`Desarrollo Económico`+`Desarrollo económico.`+`Desarrollo Económico.`) %>%
+  mutate(Educación_D = `Educación`+`Educación Superior.`+`Educación e Inclusión social`+`Educación y Derechos humanos`+`Educación.`) %>%
+mutate(FortalecimientoOrg_D = `Fortalecimiento organizativo`+`Fortalecimiento organizacional.`) %>%
+  mutate(GestionR_D= `Gestión del Riesgo`+`Gestión del riesgo`+`Gestión del Riesgo Ambiental`+`Gestión del riesgo ambiental`)  %>%
+  mutate(Inclusion_D= `Inclusión social`+`Inclusión Social`+`Inclusión social y grupos poblacionales.`+`Inclusión social.`+`Inclusión social y atención a grupos poblacionales.`) %>%
+  mutate(Infraestructura_D=
+Infraestructura) %>%
+  mutate(Juventud_D= Juventud+Jóvenes)  %>%
+    mutate(`Medio ambiente_D`= `Medio ambiente`+`Gestión Ambiental`+`Medio Ambiente`+`Gestión ambiental`+`Cultura Ambiental y Sostenibilidad`+`Gestión ambiental.`+`Sostenibilidad ambiental`) %>%
+  mutate(Mujeres_D= Mujeres+MUJERES) %>%
+  mutate(Salud_D=Salud+Salud.+`Salud y protección social.`+`Protección social.`+`Protección Social Integral`) %>%
+  mutate(Participación_D=`Participación Ciudadana`+`Participación ciudadana`+`Participación CIudadana`+`Participación ciudadana.`+`Participación ciudadana y jóvenes`) %>%
+  mutate(Vivienda_D=Vivienda+`Vivienda y servicios públicos`+vivienda+`Vivienda y hábitat`+`Servicios públicos`)  %>%
+  mutate(Movilidad_D=Movilidad) %>%
+  mutate(`Seguridad Alim_D`=`Seguridad alimentaria.`+`Seguridad alimentaria`+`Seguridad alimentaria e inclusión social.`) %>%
+  mutate(`Adultos mayores_D`=`Adultos mayores.`) %>%
+  mutate(`Diversidad_D`=`Diversidad sexual`)  %>%
+  mutate(Indigenas_D=`Indígenas.`)  %>%
+  mutate(Niños = `Niños, niñas y adolescentes.`) %>%
+  mutate(Discapacidad = `Personas con discapacidad,`)  %>%
+  mutate(Víctimas_D =Víctimas. ) %>%
+  mutate(Espacio_D=`Espacio público y equipamiento`) %>%
+  mutate(SeriviciosP_D=`Servicios públicos`)
+```
+
+```{r}
+Data <-data %>%
+  select(ends_with('_D'))
+```
+
+```{r}
+
+Data %>%
+rowSums()
+```
+
+```{r}
+write.xlsx(Data,"data.xlsx")
+```
+
+
+
+```{r}
+pp2019<-read_excel("C:/Users/user/Downloads/2019C.xlsx")
+
+pp2019$comu<- pp2019$`1.Número Comuna`
+
+pp2019$Depe<- ifelse(grepl("Colmayor",pp2019$`3.Dependencia`),"COLMAYOR",
+              ifelse(grepl("CULTURA",pp2019$`3.Dependencia`),"CULTURA",
+              ifelse(grepl("DESARROLLO",pp2019$`3.Dependencia`),"DESARROLLO ECONOMICO",   
+              ifelse(grepl("EDUCACI",pp2019$`3.Dependencia`),"EDUCACIÓN",
+              ifelse(grepl("GESTI",pp2019$`3.Dependencia`),"GESTIÓN Y CONTROL",
+              ifelse(grepl("INCLUSI",pp2019$`3.Dependencia`),"INCLUSIÓN",
+              ifelse(grepl("INDER",pp2019$`3.Dependencia`),"INDER",
+              ifelse(grepl("INFRA",pp2019$`3.Dependencia`),"INFRAESTRUCTURA",
+              ifelse(grepl("MEDIO AMBI",pp2019$`3.Dependencia`),"MEDIO AMBIENTE",
+              ifelse(grepl("PARTICIPACI",pp2019$`3.Dependencia`),"PARTICIPACIÓN",
+              ifelse(grepl("SAPIENC",pp2019$`3.Dependencia`),"SAPIENCIA",
+              ifelse(grepl("Sapienc",pp2019$`3.Dependencia`),"SAPIENCIA",
+              ifelse(grepl("Desarrollo",pp2019$`3.Dependencia`),"DESARROLLO ECONOMICO",
+              ifelse(grepl("Educaci",pp2019$`3.Dependencia`),"EDUCACIÓN",
+              ifelse(grepl("DAGRD",pp2019$`3.Dependencia`),"DAGRD",
+              ifelse(grepl("ISVIMED",pp2019$`3.Dependencia`),"ISVIMED",
+              ifelse(grepl("JUVENTUD",pp2019$`3.Dependencia`),"JUVENTUD",
+              ifelse(grepl("MOVILIDAD",pp2019$`3.Dependencia`),"MOVILIDAD",
+              ifelse(grepl("MUJERES",pp2019$`3.Dependencia`),"MUJERES",
+              ifelse(grepl("SALUD",pp2019$`3.Dependencia`),"SALUD",
+              ifelse(grepl("CONVIVE",pp2019$`3.Dependencia`),"SEGURIDAD Y CONVIVENCIA",
+              ifelse(grepl("COMUNI",pp2019$`3.Dependencia`),"COMUNICACIONES",""))))))))))))))))))))))
+
+
+
+
+invpp<-pp2019 %>%
+  group_by(comu,Depe) %>%
+  summarise(inv=sum(`7.Costo`)) %>%
+  pivot_wider(names_from = comu,values_from = inv)
+
+
+votpp<-pp2019 %>%
+  group_by(comu,Depe) %>%
+  summarise(vot=sum(`Total Votos`)) %>%
+  pivot_wider(names_from = comu,values_from = vot)
+  
+
+
+write.xlsx(pp2019,"pp2019.xlsx")
+write.xlsx(invpp,"invpp.xlsx")
+write.xlsx(votpp,"votpp.xlsx")
+
+
+```
+
+
+## Limpieza Inversión
+
+```{r}
+data1 <- read_excel("C:/Users/user/Downloads/costo (2).xlsx")
+```
+
+```{r}
+ data1<- data1 %>%
+  mutate(Comunicaciones_D= Comunicaciones+COMUNICACIONES+Comunicación) %>%
+  mutate(Convivencia_D =`Convivencia y Derechos humanos`+`Seguridad y convivencia`+Convivencia+`Derechos humanos, convivencia y seguridad.`+`Convivencia y Derechos Humanos` + `Convivencia ciudadana.`+Convivencia.+`Convivencia ciudadana.`+Convivencia.+`Derechos humanos.`)%>%
+  mutate(Cultura_D=Cultura+`Cultura ciudadana`+`Cultura.`+`Arte y cultura.`+`Arte y cultura`+`Cultura Ambiental y Sostenibilidad`+`Cultura, arte y patrimonio.`)  %>%
+ mutate(Deporte_D= `Deportes y Recreación`+`Recreación y deportes`+`Deporte, recreación y actividad física`+`Deporte y recreación`+`Deporte y recreación.`+`Recreación y deporte`+`Deporte, recreación y actividad física.`+`Recreación y deporte.`+`Recreación y deporte.`+`Deporte,recreación y jóvenes`)  %>%
+  mutate(Desarrollo_D= `Desarrollo económico`+`Desarrollo Económico`+`Desarrollo económico.`+`Desarrollo Económico.`) %>%
+  mutate(Educación_D = `Educación`+`Educación Superior.`+`Educación e Inclusión social`+`Educación y Derechos humanos`+`Educación.`) %>%
+mutate(FortalecimientoOrg_D = `Fortalecimiento organizativo`+`Fortalecimiento organizacional.`) %>%
+  mutate(GestionR_D= `Gestión del Riesgo`+`Gestión del riesgo`+`Gestión del Riesgo Ambiental`+`Gestión del riesgo ambiental`)  %>%
+  mutate(Inclusion_D= `Inclusión social`+`Inclusión Social`+`Inclusión social y grupos poblacionales.`+`Inclusión social.`+`Inclusión social y atención a grupos poblacionales.`) %>%
+  mutate(Infraestructura_D=
+Infraestructura) %>%
+  mutate(Juventud_D= Juventud+Jóvenes)  %>%
+    mutate(`Medio ambiente_D`= `Medio ambiente`+`Gestión Ambiental`+`Medio Ambiente`+`Gestión ambiental`+`Cultura Ambiental y Sostenibilidad`+`Gestión ambiental.`+`Sostenibilidad ambiental`) %>%
+  mutate(Mujeres_D= Mujeres+MUJERES) %>%
+  mutate(Salud_D=Salud+Salud.+`Salud y protección social.`+`Protección social.`+`Protección Social Integral`) %>%
+  mutate(Participación_D=`Participación Ciudadana`+`Participación ciudadana`+`Participación CIudadana`+`Participación ciudadana.`+`Participación ciudadana y jóvenes`) %>%
+  mutate(Vivienda_D=Vivienda+`Vivienda y servicios públicos`+vivienda+`Vivienda y hábitat`+`Servicios públicos`)  %>%
+  mutate(Movilidad_D=Movilidad) %>%
+  mutate(`Seguridad Alim_D`=`Seguridad alimentaria.`+`Seguridad alimentaria`+`Seguridad alimentaria e inclusión social.`) %>%
+  mutate(`Adultos mayores_D`=`Adultos mayores.`) %>%
+  mutate(`Diversidad_D`=`Diversidad sexual`)  %>%
+  mutate(Indigenas_D=`Indígenas.`)  %>%
+  mutate(Niños = `Niños, niñas y adolescentes.`) %>%
+  mutate(Discapacidad = `Personas con discapacidad,`)  %>%
+  mutate(Víctimas_D =Víctimas. ) %>%
+  mutate(Espacio_D=`Espacio público y equipamiento`) %>%
+  mutate(SeriviciosP_D=`Servicios públicos`)
+```
+
+
+```{r}
+Data1 <- data1 %>%
+  select(ends_with('_D')) 
+```
+
+```{r}
+Data1 %>%
+  rowSums()
+```
+
+
+
+
+
+
+## Limpieza Indice Calidad de vida 
+
+```{r}
+indic<-data %>%
+  select(Comuna,starts_with('I_'))
+
+
+
+```
+
+
+```{r}
+comuna
+valor<- c(0.07,	0.03,	0.08	,0.10	,0.10,	0.08,	0.09,	0.07,	0.07	,0.14,	0.13,	0.14,	0.08,	0.16,	0.10,	0.10,	0.08,	0.03,	0.03,	0.04,	0.00)
+Nombre<- c('Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación','Recreación')
+
+ind1 <- cbind.data.frame(comuna,valor,Nombre)
+```
+
+```{r}
+comuna
+valor<- c(0.54,	0.55,	0.47,	0.51,	0.60,	0.49,	0.52,	0.49,	0.56,	0.57,	0.49,	0.53,	0.52,	0.67,	0.65,	0.58,	0.58,	0.58,	0.46,	0.61,	0.61
+)
+Nombre<- c('Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo','Trabajo')
+
+ind2 <- cbind.data.frame(comuna,valor,Nombre)
+```
+
+
+## Limpieza Presupuesto Ordinario
+
+```{r}
+data <- data %>%
+  filter(TIPO_INVERSION == 0)
+
+data$INVERSION<- as.numeric(data$INVERSION)
+
+str(data)
+```
+
+```{r}
+IT<-data %>%
+  group_by(CODIGO_COMUNA) %>%
+  filter(CODIGO_COMUNA !=97) %>%
+  filter(CODIGO_COMUNA !=99) %>%
+  summarise(sum(INVERSION)) 
+
+
+IT<- cbind.data.frame(comuna,IT)
+
+```
+
+
+```{r}
+data %>%
+  group_by(NOMBRE_DEPENDENCIA,CODIGO_COMUNA) %>%
+  summarise(inversi=sum(INVERSION)) %>%
+  pivot_wider(names_from = NOMBRE_DEPENDENCIA,values_from =inversi )
+```
+
+
+
+```{r}
+INVD<-data %>%
+  group_by(CODIGO_COMUNA,NOMBRE_DEPENDENCIA) %>%
+  summarise(inv= sum(INVERSION)) %>%
+  filter(CODIGO_COMUNA !=97) %>%
+   filter(CODIGO_COMUNA !=99) %>%
+   pivot_wider(names_from =CODIGO_COMUNA,values_from = inv ) 
+ 
+
+
+
+write.xlsx(INVD,"invd.xlsx") 
+```
+
+```{r}
+
+comuna
+
+valor<- c(80027820439,	69349147264,	91534953296,	81840910178	,78200646269	,81980410384,	106120007702,	85306953959,	94028546283,	52905845020,	14903857287	,56080271400	,65455984661	,21872902849,	34234121347	,58505954521,	6359562943,	55537927219,	42033821728,	55780392779	,12322253712
+)
+
+Nombre <- c("Educación","Educación","Educación","Educación","Educación","Educación","Educación","Educación","Educación","Educación","Educación","Educación","Salud","Educación","Educación","Educación","Educación","Educación","Medio Ambiente","Educación","Control Territorial")
+
+
+invd<- cbind.data.frame(comuna,valor,Nombre)
+```
+
+
+## Limpieza Población
+
+```{r}
+pob<- read_excel("C:/Users/user/Downloads/2016-06-10 Proyecciones de Poblacion Medellin 2016_2020 en xlsx (1).xlsx", 
+    sheet = "ALL")
+```
+
+
+```{r}
+pob2019<-pob %>%
+  select(codigo,grupo_edad,total_2019) %>%
+  filter(grupo_edad == "Total") %>%
+  filter(codigo != "Suma Comunas") %>%
+  filter(codigo != "Suma Corregimientos") %>%
+  filter(codigo != "Total Medellín") 
+
+
+pob2019<- cbind.data.frame(comuna,pob2019[,-1])
+
+write.xlsx(pob2019,"pob2019.xlsx")
+
+```
+
+
+## Salidas Graficas
+## Votos
+
+```{r}
+comuna<- data$Comuna
+Data <- cbind(comuna,Data)
+```
+
+
+
+```{r}
+ df <- t(Data)
+df<- as.data.frame(df)
+df<- df[-1,]
+
+write.xlsx(df,'Data.xlsx')
+```
+
+```{r}
+
+comuna
+valor<-c(11944,5548,11391,9084,6029,13674,	14107,	10391	,4580	,4519,	5332,	6697,	11091,	3250,	6004,	9247,	1197,	10492,	2327,	8677,	2273
+	)
+Nombre<-c('Medio Ambiente','Inclusión','Inclusión','Inclusión','Inclusión','Inclusión','Inclusión','Inclusión','Inclusión','Inclusión','Inclusión','Inclusión','Inclusión','Medio Ambiente','Inclusión','Inclusión','Movilidad','Inclusión','Inclusión','Inclusión','Inclusión')
+
+vo<- cbind.data.frame(comuna,valor,Nombre)
+
+```
+
+
+```{r}
+vo %>%
+  ggplot(aes(x=reorder(comuna,valor),y=valor,fill=Nombre)) +
+  geom_bar(stat = 'identity')+
+  coord_flip()+
+  theme_bw()+
+  labs(title='Mayor número de votos por dependencia',y='Número de votaciones',x='Comuna',
+       fill="Dependencia")+
+  scale_fill_brewer(palette ="Dark2")
+  
+
+ggsave("votM.png")
+```
+
+```{r}
+vo %>%
+  ggplot(aes(x=reorder(comuna,part),y=part,fill=comuna)) +
+  geom_bar(stat = 'identity',position = 'dodge',fill='#41d2d1')+
+  coord_flip()+
+  theme_bw()+
+  labs(title='Votos en proyectos de participación',y='Número de votaciones',x='Comuna')+
+  scale_fill_brewer(palette ="Dark2")+
+  geom_text(aes(label=paste0((part))))
+
+ggsave("votPa.png")
+```
+
+
+
+```{r}
+write.xlsx(Data1,"cost.xlsx")
+```
+
+
+```{r}
+cost <- read_excel("C:/Users/user/OneDrive - Universidad de Antioquia/Udea/Convocatoria Tematica/cost.xlsx")
+
+
+totcost %>%
+  rowSums()
+```
+
+
+
+```{r}
+comuna<- pob2019$comuna
+
+valorv <- c(4979000000,	5473405695,	3751681866,	3914432048,	3362032625,	4023277061	,3580480000	,4588619227	,4173821694,	1585227460,	1953952136,	2106062361	,6079171115	,2977000000	,2258053873	,3706188880	,4420000000,	2786050000,	1700000000	,2254713038,	2377698755)
+
+Nombrev <- c('Sapiencia','Inclusión','Inclusión','Inclusión','Colmayor','Colmayor','Sapiencia','Inclusión','Colmayor','Inclusión','Inder','Inclusión','Inclusión','Educación','Colmayor','Colmayor','Gestión y Control','Sapiencia','Sapiencia','Inclusión','Colmayor')
+inv<- cbind.data.frame(comuna,valorv,Nombrev)
+
+```
+
+
+```{r}
+inv %>%
+  ggplot(aes(x=reorder(comuna,valorv),y=valorv,fill=Nombrev)) +
+  geom_bar(stat = 'identity')+
+  coord_flip()+
+  theme_bw()+
+  labs(title='Mayor Inversión por dependencia',y='Inversión',x='Comuna',
+       fill="Dependencia")+
+  scale_fill_brewer(palette ="Dark2")
+
+ggsave("Inv.png")
+```
+
+```{r}
+vo %>%
+  ggplot(aes(x=reorder(comuna,part),y=part,fill=comuna)) +
+  geom_bar(stat = 'identity',position = 'dodge',fill='#41d2d1')+
+  coord_flip()+
+  theme_bw()+
+  labs(title='Inversión en participación',y='Inversión',x='Comuna')+
+  scale_fill_brewer(palette ="Dark2")+
+  geom_text(aes(label=paste0((part))))
+
+ggsave("invp.png")
+```
+
+```{r}
+ind1  %>%
+  ggplot(aes(x=reorder(comuna,valor),y=valor,fill=Nombre)) +
+  geom_bar(stat = 'identity',position = 'dodge')+
+  coord_flip()+
+  theme_bw()+
+  labs(title='Primera Necesidad por Comuna',y='Puntaje',x='Comuna')+
+  scale_fill_brewer(palette ="Dark2")+
+  geom_text(aes(label=paste0((valor))))
+
+
+```
+
+
+```{r}
+ind2  %>%
+  ggplot(aes(x=reorder(comuna,valor),y=valor,fill=Nombre)) +
+  geom_bar(stat = 'identity',position = 'dodge')+
+  coord_flip()+
+  theme_bw()+
+  labs(title='Segunda Necesidad por Comuna',y='Puntaje',x='Comuna')+
+  scale_fill_brewer(palette ="Dark2")+
+  geom_text(aes(label=paste0((valor))))
+```
+
+
+```{r}
+
+```
+
+
+## Presupuesto Ordinario
+
+```{r}
+IT$valor<- IT$`sum(INVERSION)`
+```
+
+```{r}
+IT$valorP<- IT$valor/pob2019$total_2019
+
+IB<-IT %>%
+  ggplot(aes(x=reorder(comuna,valor),y=valor,fill=comuna)) +
+  geom_bar(stat = 'identity',position = "dodge",fill='#41d2d1')+
+  coord_flip()+
+  theme_bw()+
+  labs(title='Bruta',y='Inversión',x='Comuna',
+       fill="Dependencia")+
+  scale_fill_brewer(palette ="Dark2")
+
+IP<-
+  IT %>%
+  ggplot(aes(x=reorder(comuna,valorP),y=valorP,fill=comuna)) +
+  geom_bar(stat = 'identity',position = "dodge",fill='#41d2d1')+
+  coord_flip()+
+  theme_bw()+
+  labs(title='Percápita',y='Inversión Pércapita',x='Comuna',
+       fill="Dependencia")+
+  scale_fill_brewer(palette ="Dark2")
+
+
+
+plot_grid(IB,IP)
+
+
+ggsave("Inv.png")
+
+write.xlsx(IT,"invo.xlsx")
+```
+
+
+
+
+```{r}
+invd %>%
+  ggplot(aes(x=reorder(comuna,valor),y=valor,fill=Nombre)) +
+  geom_bar(stat = 'identity')+
+  coord_flip()+
+  theme_bw()+
+  labs(title='Mayor Inversión por dependencia',y='Inversión',x='Comuna',
+       fill="Dependencia")+
+  scale_fill_brewer(palette ="Dark2")
+  
+
+ggsave("invmd.png")
+```
+
+
+## Análisis de Correlación
+
+
+```{r}
+
+
+rel <- data.frame(
+  votaciones = vo$valor,
+  InversionPP = inv$valorv,
+  Recreación = ind1$valor,
+  Trabajo = ind2$valor,
+  InversionO =  invd$valor,
+  "Calidad_Vivienda"=data$I_Calidad_Vivienda,
+  Servicios=data$I_Servicios,
+  Ambiente=data$I_Ambiente,
+  Escolaridad=data$I_Escolaridad,
+  Desescolaridad=data$I_Desescolaridad,
+  Movilidad=data$I_Movilidad,
+  Participación=data$I_Participacion,
+  Libertad=data$I_Libertad_seguridad,
+  Vulnerabilidad=data$I_Vulnerabilidad,
+  Salud=data$I_Salud,
+  Calidad_vida=data$I_Percepcion_calidad,
+  Ingresos=data$I_Ingresos,
+  "Capital_Fisico"=data$I_Capita_hogar
+  
+)
+
+
+mat<-cor(rel)
+
+
+
+
+
+
+
+
+
+```
+
+```{r}
+ggcorrplot(mat,title = "Matriz de Correlación")
+
+ggsave("cor.PNG")
+```
+
+
+## Análisis Espacial
+
+```{r}
+library("rgdal")
+library("rgeos")
+library("tmap")
+library(sp)
+library(gstat)
+library(spdep)
+library(spdyn)
+
+```
+
+```{r}
+di<- "C:/Users/user/Downloads"
+
+med <- readOGR(di,"Limite_Comuna_Corregimiento")
+
+
+med$CODIGO<- as.numeric(med$CODIGO)
+
+codigo <- c(1:16,50,60,70,80,90)
+pob2019
+data <- cbind.data.frame(codigo,pob2019$comuna,rel,pob2019$total_2019)
+
+datag<- merge(med,data,by.x="CODIGO",by.y="codigo")
+datag$part<- datag$votaciones/datag$`pob2019$total_2019`*100
+```
+
+```{r}
+part<-tm_shape(datag)+tm_fill(col = "part", style = "quantile", colorNA = "gray", legend.show = FALSE)+tm_borders()+
+tm_layout(bg.color = "lightblue",title = "Porcentaje de Participación")+
+tm_text("pob2019$comuna",size = 0.3)
+
+tmap_save(part,"part.png")
+```
+
+
+```{r}
+PN<-tm_shape(datag)+tm_fill(col = "P_Necesidad", style = "quantile", colorNA = "gray",legend.show = FALSE)+tm_borders()+
+tm_layout(bg.color = "lightblue",title = "Primera Necesidad")+
+tm_text("pob2019$comuna",size = 0.3)
+
+tmap_save(PN,"P_necesG.png")
+```
+
+```{r}
+nb<- poly2nb(datag)
+
+nbw<- nb2listw(nb,style = 'W',zero.policy = T)
+mi <- moran.mc(datag$P_Necesidad,listw=nbw,nsim = 1000,na.action =na.omit )
+mip <- moran.mc(datag$PPP,listw=nbw,nsim = 1000,na.action =na.omit )
+mio <- moran.mc(datag$PPO,listw=nbw,nsim = 1000,na.action =na.omit )
+mipa <- moran.mc(datag$part,listw=nbw,nsim = 1000,na.action =na.omit )
+
+
+
+
+
+
+
+
+
+rel$InversionPP
+
+```
+```{r}
+
+datag$PPP<- datag$InversionPP/datag$`pob2019$total_2019`
+pp<-tm_shape(datag)+tm_fill(col = "PPP", style = "quantile", colorNA = "gray",legend.show = FALSE)+tm_borders()+
+tm_layout(bg.color = "lightblue",title='Prespuesto Participativo')+
+tm_text("pob2019$comuna",size = 0.3)
+
+tmap_save(pp,"pp.png")
+```
+
+```{r}
+datag$PPO<- datag$InversionO /datag$`pob2019$total_2019`
+po<-tm_shape(datag)+tm_fill(col = "PPO", style = "quantile", colorNA = "gray",legend.show = FALSE)+tm_borders()+
+tm_layout(bg.color = "lightblue",title ="Prespuesto Ordinario" )+
+tm_text("pob2019$comuna",size = 0.3)
+
+tmap_save(po,"po.png")
+```
+```{r}
+arr<-tmap_arrange(part,pp,po,PN,nrow = 2)
+
+tmap_save(arr,"arr.png")
+```
+
+
+
+
+# Año 2018
+## Limipieza Participativo
+```{r}
+
+data <- read_excel("C:/Users/user/OneDrive - Universidad de Antioquia/Udea/Convocatoria Tematica/data18.xlsx")
+
+data$comuna<- data$`Nombre de Comuna`
+data$proyecto<- data$`Nombre del proyecto`
+data$votos<- data$`Total Votos`
+
+
+SA<-subset(data,comuna!="NA" & proyecto!="VOTO NULO" & proyecto!="VOTO EN BLANCO")
+
+
+
+def<- SA %>%
+  separate(comuna,c("Numero","Nombre"),"-")
+
+
+def<-def[,-c(1:6)]
+
+
+write.xlsx(def,"2018.xlsx")
+```
+
+
+
+```{r}
+data<-read_excel("2018.xlsx")
+
+table(data$proyecto)
+
+
+
+pivot_wider()
+```
+
+```{r}
+data$depe<- ifelse(grepl("telec",data$proyecto),"COMUNICACIONES",
+            ifelse(grepl("comunicación",data$proyecto),"COMUNICACIONES",
+            ifelse(grepl("cultur",data$proyecto),"CULTURA",
+            ifelse(grepl("fiesta",data$proyecto),"CULTURA",
+            ifelse(grepl("tisticas",data$proyecto),"CULTURA",
+            ifelse(grepl("patrimonio",data$proyecto),"CULTURA",
+            ifelse(grepl("iesgo",data$proyecto),"DAGRD",
+            ifelse(grepl("lerta",data$proyecto),"DAGRD",
+            ifelse(grepl("omerc",data$proyecto),"DESARROLLO ECONÓMICO",
+            ifelse(grepl("empre",data$proyecto),"DESARROLLO ECONÓMICO",
+            ifelse(grepl("icroempre",data$proyecto),"DESARROLLO ECONÓMICO",
+            ifelse(grepl("empresa",data$proyecto),"DESARROLLO ECONÓMICO",
+            ifelse(grepl("econom",data$proyecto),"DESARROLLO ECONÓMICO",
+            ifelse(grepl("gropec",data$proyecto),"DESARROLLO ECONÓMICO",
+            ifelse(grepl("gastronom",data$proyecto),"DESARROLLO ECONÓMICO",
+            ifelse(grepl("urísti",data$proyecto),"DESARROLLO ECONÓMICO",
+            ifelse(grepl("product",data$proyecto),"DESARROLLO ECONÓMICO",
+            ifelse(grepl("adulto",data$proyecto),"INCLUSIÓN",
+            ifelse(grepl("discapa",data$proyecto),"INCLUSIÓN",
+            ifelse(grepl("promoción",data$proyecto),"INCLUSIÓN",
+            ifelse(grepl("inclusión",data$proyecto),"INCLUSIÓN",
+            ifelse(grepl("alimentaria",data$proyecto),"INCLUSIÓN",
+            ifelse(grepl("incluyentes",data$proyecto),"INCLUSIÓN",
+            ifelse(grepl("género",data$proyecto),"INCLUSIÓN",
+            ifelse(grepl("deport",data$proyecto),"INDER",
+            ifelse(grepl("torneo",data$proyecto),"INDER",
+            ifelse(grepl("infraestr",data$proyecto),"INFRAESTRUCTURA",
+            ifelse(grepl("juveniles",data$proyecto),"JUVENTUD",
+            ifelse(grepl("jóvenes",data$proyecto),"JUVENTUD",
+            ifelse(grepl("uebradas",data$proyecto),"MEDIO AMBIENTE",
+            ifelse(grepl("colog",data$proyecto),"MEDIO AMBIENTE",
+            ifelse(grepl("mbiental",data$proyecto),"MEDIO AMBIENTE",
+            ifelse(grepl("mujer",data$proyecto),"MUJERES",
+            ifelse(grepl("particip",data$proyecto),"PARTICIPACIÓN",
+            ifelse(grepl("comunal",data$proyecto),"PARTICIPACIÓN",
+            ifelse(grepl("comunitari",data$proyecto),"PARTICIPACIÓN",
+            ifelse(grepl("JAC",data$proyecto),"PARTICIPACIÓN",
+            ifelse(grepl("lideraz",data$proyecto),"PARTICIPACIÓN",
+            ifelse(grepl("democra",data$proyecto),"PARTICIPACIÓN",
+            ifelse(grepl("incidenci",data$proyecto),"PARTICIPACIÓN",
+            ifelse(grepl("movilizaci",data$proyecto),"PARTICIPACIÓN",
+            ifelse(grepl("organizaciones",data$proyecto),"PARTICIPACIÓN",
+            ifelse(grepl("salud",data$proyecto),"SALUD",
+            ifelse(grepl("superior",data$proyecto),"EDUCACIÓN SUPERIOR",
+            ifelse(grepl("conviven",data$proyecto),"SEGURIDAD",
+            ifelse(grepl("infancia",data$proyecto),"EDUCACIÓN",
+            ifelse(grepl("ivienda",data$proyecto),"ISVIMED",
+            ifelse(grepl("técnica",data$proyecto),"EDUCACIÓN SUPERIOR",
+            ifelse(grepl("lengua",data$proyecto),"EDUCACIÓN"," "
+           )))))))))))))))))))))))))))))))))))))))))))))))))
+
+write.xlsx(data,"res.xlsx")
+```
+
+
+```{r}
+pp <- read_excel('res.xlsx')
+
+pp %>%
+  group_by(dependencia,comuna) %>%
+  summarise(vode=sum(votos)) 
+pivot_wider  
+```
+
+
+
+
+
+
+## Limpieza Ordinario
+
+```{r}
+data <- read_excel("C:/Users/user/OneDrive - Universidad de Antioquia/Udea/Recursos/Datos/2018in.xls")
+
+
+```
+
+
+
+
+```{r}
+ io<-data %>%
+  group_by(`Nombre Comuna`,Dependencia) %>%
+  summarise(inv= sum(Inversion)) %>%
+  pivot_wider(names_from = Dependencia,values_from=inv) 
+```
+
+```{r}
+io$total <-
+    rowSums(io[,2:27],na.rm = TRUE)
+```
+
+
+```{r}
+write.xlsx(io,"io.xlsx")
+```
+
+
+```{r}
+write.xlsx(io,"IOP18.xlsx")
+
